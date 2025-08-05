@@ -3,7 +3,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { PrismaClient } from '@prisma/client/extension';
 import { PrismaService } from 'src/database/prisma.service';
-import { Task } from 'generated/prisma';
+import { Task, TaskStatus } from 'generated/prisma';
 
 @Injectable()
 export class TaskService {
@@ -44,8 +44,24 @@ export class TaskService {
     });
   }
 
-  findAll() {
-    return this.prisma.task.findMany();
+  findAll(categoryId?: string, status?: TaskStatus) {
+    const filters: any = {};
+
+    if (categoryId) {
+      filters.categoryId = Number(categoryId);
+    }
+
+    if (status) {
+      filters.status = status;
+    }
+
+    if (status && status !== 'DONE' && status !== 'PENDING') {
+      throw new Error('O status não existe');
+    }
+
+    return this.prisma.task.findMany({
+      where: filters,
+    });
   }
 
   findOne(id: number) {

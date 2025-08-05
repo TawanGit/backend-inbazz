@@ -12,11 +12,13 @@ import {
   NotFoundException,
   ParseIntPipe,
   Put,
+  Query,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { TaskStatus } from 'generated/prisma';
 
 @Controller('todos')
 export class TaskController {
@@ -34,8 +36,17 @@ export class TaskController {
 
   @Get()
   @UseGuards(AuthGuard)
-  async findAll() {
-    return this.taskService.findAll();
+  async findAll(
+    @Query('categoryId') categoryId?: string,
+    @Query('status') status?: TaskStatus,
+  ) {
+    //todos?categoryId=2&status=PENDING
+    // exemplo acima
+    try {
+      return this.taskService.findAll(categoryId, status);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Get(':id')
@@ -55,5 +66,11 @@ export class TaskController {
     } catch (e) {
       throw new NotFoundException(e.message);
     }
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard)
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.taskService.remove(id);
   }
 }
