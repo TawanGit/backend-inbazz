@@ -8,7 +8,7 @@ export class CategoryService {
   @Inject()
   private readonly prisma: PrismaService;
 
-  async create(createCategoryDto: CreateCategoryDto, @Req() req: string) {
+  async create(createCategoryDto: CreateCategoryDto) {
     const categoryWithNameAlreadyExist = await this.prisma.category.findFirst({
       where: { name: createCategoryDto.name },
     });

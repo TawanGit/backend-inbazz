@@ -21,9 +21,9 @@ export class CategoryController {
 
   @Post()
   @UseGuards(AuthGuard)
-  create(@Body() createCategoryDto: CreateCategoryDto, req: string) {
+  create(@Body() createCategoryDto: CreateCategoryDto) {
     try {
-      return this.categoryService.create(createCategoryDto, req);
+      return this.categoryService.create(createCategoryDto);
     } catch (e) {
       throw new InternalServerErrorException(e.message);
     }
