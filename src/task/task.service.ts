@@ -23,7 +23,7 @@ export class TaskService {
 
     const category = await this.prisma.category.findFirst({
       where: {
-        name: 'General',
+        id: createTaskDto.categoryId,
       },
     });
 
@@ -43,7 +43,6 @@ export class TaskService {
       },
     });
   }
-
   findAll(categoryId?: string, status?: TaskStatus) {
     const filters: any = {};
 
