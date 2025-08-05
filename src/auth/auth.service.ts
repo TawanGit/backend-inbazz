@@ -30,7 +30,7 @@ export class AuthService {
     if (!passwordMatch)
       throw new UnauthorizedException('Credenciais inválidas');
 
-    const payload = { sub: user.id };
+    const payload = { userId: user.id };
 
     return { access_token: await this.jwtService.signAsync(payload) };
   }
