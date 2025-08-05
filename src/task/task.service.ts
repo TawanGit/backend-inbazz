@@ -10,17 +10,6 @@ export class TaskService {
   @Inject()
   private readonly prisma: PrismaService;
 
-  create(createTaskDto: CreateTaskDto, req): Promise<Task> {
-    return this.prisma.task.create({
-      data: {
-        title: createTaskDto.title,
-        description: createTaskDto.description,
-        status: createTaskDto.status,
-        category: 
-      },
-    });
-  }
-
   findAll() {
     return `This action returns all task`;
   }

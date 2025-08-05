@@ -8,7 +8,7 @@ export class CategoryService {
   @Inject()
   private readonly prisma: PrismaService;
 
-  create(createCategoryDto: CreateCategoryDto) {
+  create(createCategoryDto: CreateCategoryDto, req: string) {
     return this.prisma.category.create({
       data: {
         name: createCategoryDto.name,

@@ -20,6 +20,6 @@ export class TaskController {
   @UseGuards(AuthGuard)
   @Post()
   create(@Body() createTaskDto: CreateTaskDto, @Request() req) {
-    return this.taskService.create(createTaskDto, req.user.userId);
+    return 'jdjfj';
   }
 }

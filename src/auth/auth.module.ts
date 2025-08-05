@@ -1,22 +1,25 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { UserService } from 'src/user/user.service';
-import { PrismaService } from 'src/database/prisma.service';
+import { UserModule } from 'src/user/user.module';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from './constants';
 import { AuthGuard } from './auth.guard';
+import { DatabaseModule } from 'src/database/database.module';
+import { PrismaService } from 'src/database/prisma.service';
+import { UserService } from 'src/user/user.service';
 
 @Module({
   imports: [
+    DatabaseModule,
+    forwardRef(() => UserModule),
     JwtModule.register({
       global: true,
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: '60s' },
+      secret: process.env.SECRET_KEY || '',
+      signOptions: { expiresIn: '86400s' },
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, UserService, PrismaService],
+  providers: [AuthService, AuthGuard, PrismaService, UserService],
   exports: [AuthGuard, AuthService],
 })
 export class AuthModule {}
