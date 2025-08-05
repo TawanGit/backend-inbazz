@@ -7,6 +7,8 @@ import {
   Delete,
   UseGuards,
   Put,
+  ParseIntPipe,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dtos/create-category.dto';
@@ -20,7 +22,11 @@ export class CategoryController {
   @Post()
   @UseGuards(AuthGuard)
   create(@Body() createCategoryDto: CreateCategoryDto, req: string) {
-    return this.categoryService.create(createCategoryDto, req);
+    try {
+      return this.categoryService.create(createCategoryDto, req);
+    } catch (e) {
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
   @Get()
@@ -31,22 +37,22 @@ export class CategoryController {
 
   @Get(':id')
   @UseGuards(AuthGuard)
-  findOne(@Param('id') id: string) {
-    return this.categoryService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.categoryService.findOne(id);
   }
 
   @Put(':id')
   @UseGuards(AuthGuard)
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
-    return this.categoryService.update(+id, updateCategoryDto);
+    return this.categoryService.update(id, updateCategoryDto);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard)
-  remove(@Param('id') id: string) {
-    return this.categoryService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.categoryService.remove(id);
   }
 }

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, Req } from '@nestjs/common';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 import { UpdateCategoryDto } from './dtos/update-category.dto';
 import { PrismaService } from 'src/database/prisma.service';
@@ -8,7 +8,15 @@ export class CategoryService {
   @Inject()
   private readonly prisma: PrismaService;
 
-  create(createCategoryDto: CreateCategoryDto, req: string) {
+  async create(createCategoryDto: CreateCategoryDto, @Req() req: string) {
+    const categoryWithNameAlreadyExist = await this.prisma.category.findFirst({
+      where: { name: createCategoryDto.name },
+    });
+
+    if (categoryWithNameAlreadyExist) {
+      throw new ConflictException('Já existe uma categoria com esse nome.');
+    }
+
     return this.prisma.category.create({
       data: {
         name: createCategoryDto.name,
