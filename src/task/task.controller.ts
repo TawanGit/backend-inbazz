@@ -18,7 +18,7 @@ import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { TaskStatus } from 'generated/prisma';
+import { TaskStatus } from '../../generated/prisma';
 
 @Controller('todos')
 export class TaskController {

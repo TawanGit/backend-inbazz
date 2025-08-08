@@ -5,7 +5,7 @@ import {
   IsEnum,
   IsInt,
 } from 'class-validator';
-import { TaskStatus } from 'generated/prisma';
+import { TaskStatus } from '../../../generated/prisma';
 
 export class UpdateTaskDto {
   @IsNotEmpty({ message: 'O título é obrigatório' })
