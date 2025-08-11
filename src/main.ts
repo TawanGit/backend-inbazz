@@ -29,5 +29,6 @@ async function bootstrap() {
   );
 
   await app.listen(process.env.PORT ?? 3000);
+  console.log(`Consulte a documentação da API em /docs`);
 }
 bootstrap();
