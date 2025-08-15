@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   UseGuards,
@@ -14,18 +13,38 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiQuery,
+  ApiBody,
+} from '@nestjs/swagger';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskStatus } from '../../generated/prisma';
+import { AuthGuard } from 'src/auth/auth.guard';
 
+@ApiTags('Tasks')
 @Controller('todos')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Post()
   @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Create a new task',
+    description: 'Creates a new task for the authenticated user.',
+  })
+  @ApiBody({ type: CreateTaskDto })
+  @ApiResponse({ status: 201, description: 'Task successfully created.' })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found or other error.',
+  })
   async create(@Body() createTaskDto: CreateTaskDto, @Request() req) {
     try {
       return await this.taskService.create(createTaskDto, req.user.userId);
@@ -36,12 +55,20 @@ export class TaskController {
 
   @Get()
   @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get all tasks',
+    description:
+      'Fetch all tasks optionally filtered by categoryId and status.',
+  })
+  @ApiQuery({ name: 'categoryId', required: false, type: String })
+  @ApiQuery({ name: 'status', required: false, enum: TaskStatus })
+  @ApiResponse({ status: 200, description: 'Returns an array of tasks.' })
+  @ApiResponse({ status: 400, description: 'Invalid query parameters.' })
   async findAll(
     @Query('categoryId') categoryId?: string,
     @Query('status') status?: TaskStatus,
   ) {
-    //todos?categoryId=2&status=PENDING
-    // exemplo acima
     try {
       return this.taskService.findAll(categoryId, status);
     } catch (e) {
@@ -51,12 +78,27 @@ export class TaskController {
 
   @Get(':id')
   @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get a task by ID',
+    description: 'Fetch a single task by its ID.',
+  })
+  @ApiResponse({ status: 200, description: 'Returns the task.' })
+  @ApiResponse({ status: 404, description: 'Task not found.' })
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.taskService.findOne(id);
   }
 
   @Put(':id')
   @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Update a task',
+    description: 'Updates a task by ID.',
+  })
+  @ApiBody({ type: UpdateTaskDto })
+  @ApiResponse({ status: 200, description: 'Task successfully updated.' })
+  @ApiResponse({ status: 404, description: 'Task not found.' })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTaskDto: UpdateTaskDto,
@@ -70,6 +112,13 @@ export class TaskController {
 
   @Delete(':id')
   @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Delete a task',
+    description: 'Deletes a task by ID.',
+  })
+  @ApiResponse({ status: 200, description: 'Task successfully deleted.' })
+  @ApiResponse({ status: 404, description: 'Task not found.' })
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.taskService.remove(id);
   }

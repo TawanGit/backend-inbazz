@@ -1,7 +1,11 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { PrismaClient } from '@prisma/client/extension';
 import { PrismaService } from 'src/database/prisma.service';
 import { Task, TaskStatus } from 'generated/prisma';
 
@@ -11,25 +15,34 @@ export class TaskService {
   private readonly prisma: PrismaService;
 
   async create(createTaskDto: CreateTaskDto, userId: string): Promise<Task> {
+    if (
+      !createTaskDto.title ||
+      !createTaskDto.description ||
+      !createTaskDto.status ||
+      !createTaskDto.categoryId
+    ) {
+      throw new BadRequestException(
+        'All fields (title, description, status, categoryId) are required.',
+      );
+    }
+
+    if (!['PENDING', 'DONE'].includes(createTaskDto.status)) {
+      throw new BadRequestException('Invalid status. Must be PENDING or DONE.');
+    }
+
     const userExists = await this.prisma.user.findUnique({
       where: { id: userId },
     });
-
     if (!userExists) {
-      throw new Error('Usuário não existe');
+      throw new NotFoundException('User does not exist.');
     }
 
-    const categoryId = createTaskDto.categoryId ?? 1;
-
-    const category = await this.prisma.category.findFirst({
-      where: {
-        id: createTaskDto.categoryId,
-      },
+    const category = await this.prisma.category.findUnique({
+      where: { id: createTaskDto.categoryId },
     });
-
     if (!category) {
       throw new NotFoundException(
-        `Categoria com o ID ${categoryId} não existe.`,
+        `Category with ID ${createTaskDto.categoryId} does not exist.`,
       );
     }
 
@@ -38,12 +51,13 @@ export class TaskService {
         title: createTaskDto.title,
         description: createTaskDto.description,
         status: createTaskDto.status,
-        categoryId,
+        categoryId: createTaskDto.categoryId,
         userId,
       },
     });
   }
-  findAll(categoryId?: string, status?: TaskStatus) {
+
+  async findAll(categoryId?: string, status?: TaskStatus) {
     const filters: any = {};
 
     if (categoryId) {
@@ -51,55 +65,67 @@ export class TaskService {
     }
 
     if (status) {
+      if (!['PENDING', 'DONE'].includes(status)) {
+        throw new BadRequestException(
+          'Invalid status. Must be PENDING or DONE.',
+        );
+      }
       filters.status = status;
     }
 
-    if (status && status !== 'DONE' && status !== 'PENDING') {
-      throw new Error('O status não existe');
-    }
-
-    return this.prisma.task.findMany({
-      where: filters,
-    });
+    return this.prisma.task.findMany({ where: filters });
   }
 
-  findOne(id: number) {
-    return this.prisma.task.findUnique({
-      where: {
-        id,
-      },
-    });
+  async findOne(id: number) {
+    const task = await this.prisma.task.findUnique({ where: { id } });
+    if (!task) {
+      throw new NotFoundException('Task not found.');
+    }
+    return task;
   }
 
   async update(id: number, updateTaskDto: UpdateTaskDto) {
     const task = await this.prisma.task.findUnique({ where: { id } });
     if (!task) {
-      throw new NotFoundException('Tarefa não encontrada');
+      throw new NotFoundException('Task not found.');
     }
 
-    const category = await this.prisma.category.findUnique({
-      where: { id: updateTaskDto.categoryId },
-    });
-
-    if (!category) {
-      throw new NotFoundException(
-        `Categoria com o ID ${updateTaskDto.categoryId} não existe.`,
-      );
+    if (
+      updateTaskDto.status &&
+      !['PENDING', 'DONE'].includes(updateTaskDto.status)
+    ) {
+      throw new BadRequestException('Invalid status. Must be PENDING or DONE.');
     }
+
+    if (updateTaskDto.categoryId) {
+      const category = await this.prisma.category.findUnique({
+        where: { id: updateTaskDto.categoryId },
+      });
+      if (!category) {
+        throw new NotFoundException(
+          `Category with ID ${updateTaskDto.categoryId} does not exist.`,
+        );
+      }
+    }
+
     return this.prisma.task.update({
       where: { id },
       data: {
         title: updateTaskDto.title,
         description: updateTaskDto.description,
         status: updateTaskDto.status,
-        category: {
-          connect: { id: category.id },
-        },
+        ...(updateTaskDto.categoryId && {
+          categoryId: updateTaskDto.categoryId,
+        }),
       },
     });
   }
 
-  remove(id: number) {
+  async remove(id: number) {
+    const task = await this.prisma.task.findUnique({ where: { id } });
+    if (!task) {
+      throw new NotFoundException('Task not found.');
+    }
     return this.prisma.task.delete({ where: { id } });
   }
 }
