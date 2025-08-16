@@ -24,8 +24,8 @@ import {
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { TaskStatus } from '../../generated/prisma';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from '../auth/auth.guard';
+import { TaskStatus } from '../../../generated/prisma';
 
 @ApiTags('Tasks')
 @Controller('todos')

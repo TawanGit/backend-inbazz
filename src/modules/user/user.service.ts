@@ -1,15 +1,10 @@
-import {
-  Inject,
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
-import { Prisma, User } from 'generated/prisma';
-import { PrismaService } from 'src/database/prisma.service';
-import { CreateUserDto } from 'src/dtos/CreateUserDto';
+import { Inject, Injectable, BadRequestException } from '@nestjs/common';
+import { User } from 'generated/prisma';
 import * as bcrypt from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
 import { UserResponseDto } from './dtos/UserResponseDto';
+import { CreateUserDto } from './dtos/CreateUserDto';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class UserService {

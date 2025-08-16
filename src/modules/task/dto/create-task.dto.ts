@@ -6,7 +6,7 @@ import {
   IsNumber,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { TaskStatus } from 'generated/prisma';
+import { TaskStatus } from '../../../../generated/prisma';
 
 export class CreateTaskDto {
   @ApiProperty({ example: 'Task', description: 'Title of the task' })

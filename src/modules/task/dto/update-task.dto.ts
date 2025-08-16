@@ -5,8 +5,8 @@ import {
   IsEnum,
   IsInt,
 } from 'class-validator';
-import { TaskStatus } from '../../../generated/prisma';
 import { ApiProperty } from '@nestjs/swagger';
+import { TaskStatus } from '../../../../generated/prisma';
 
 export class UpdateTaskDto {
   @ApiProperty({

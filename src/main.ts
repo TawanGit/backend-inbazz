@@ -1,11 +1,11 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AppModule } from './modules/app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { createDefaultUser } from './database/seeders/CreateDefaultUser';
-import { createDefaultCategory } from './database/seeders/CreateDefaultCategory';
-import { PrismaService } from './database/prisma.service';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
+import { PrismaService } from './modules/database/prisma.service';
+import { createDefaultUser } from './modules/database/seeders/CreateDefaultUser';
+import { createDefaultCategory } from './modules/database/seeders/CreateDefaultCategory';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

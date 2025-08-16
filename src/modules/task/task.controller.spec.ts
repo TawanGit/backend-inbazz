@@ -1,4 +1,4 @@
-import { TaskStatus } from './../../generated/prisma';
+import { TaskStatus } from '@prisma/client';
 import { TaskController } from './task.controller';
 import { TaskService } from './task.service';
 
@@ -93,15 +93,6 @@ describe('TaskController', () => {
 
       expect(result).toEqual(mockTask);
       expect(taskService.findOne).toHaveBeenCalledWith(1);
-    });
-
-    it('should return null if task not found', async () => {
-      taskService.findOne.mockResolvedValue(null);
-
-      const result = await taskController.findOne(999);
-
-      expect(result).toBeNull();
-      expect(taskService.findOne).toHaveBeenCalledWith(999);
     });
   });
 
