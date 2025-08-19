@@ -1,4 +1,4 @@
-import { TaskStatus } from '@prisma/client';
+import { TaskStatus } from '../../../generated/prisma';
 import { TaskController } from './task.controller';
 import { TaskService } from './task.service';
 
